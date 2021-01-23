@@ -2,13 +2,12 @@
   import { onMount } from "svelte";
 	import WaveformData from "waveform-data";
 	import * as d3 from 'd3'
-	import apply = Reflect.apply;
 
 	export let name: string;
 	export let offsetY: number = 100;
 	
   let canvas: HTMLCanvasElement;
-  let main: HTMLDivElement;
+  let player: HTMLDivElement;
 	let audio: HTMLAudioElement;
 	let graph: any;
 	let overlay: any;
@@ -68,7 +67,7 @@
 	function onStart(e) {
 		console.log('start')
 		isPlaying = true
-		drawLines(wf.length, "black")
+		overlay.style.width = '0'
 	}
 	
 	function onPlaying(e) {
@@ -78,7 +77,9 @@
 	function onTimeUpdate(e) {
   	const deltaT = e.currentTarget.currentTime / duration
 		// overlay.attr('x', `${deltaT * 100}%`)
-		drawLines(Math.ceil(wf.length * deltaT), "green")
+		// drawLines(Math.ceil(wf.length * deltaT), "green")
+		const width = deltaT * 100
+		overlay.style.width = `${isNaN(width) ? 0 : width}%`
 	}
 	
 	function onDurationChange(e) {
@@ -146,16 +147,6 @@
 			.attr('transform', () => `translate(0, -${offsetY})`)
 			.select('rect')
 		
-		// const clone = svg.cloneNode(true) as HTMLElement
-		// clone.classList.remove('wave-one')
-		// clone.classList.add('wave-overlay')
-		// overlay = clone.querySelector('path')
-		// overlay.setAttribute('clip-path', 'url(#cut-off-bottom)')
-		
-		// main.append(clone)
-		//
-		// console.log(clone)
-		
 	}
 
 	function scaleY(amplitude, height) {
@@ -165,17 +156,25 @@
 		return height - ((amplitude + offset) * height) / range;
 	}
 	
-	let wf: any, ctx: CanvasRenderingContext2D
+	let wf: any
 
   function canvasStyle(waveform) {
 		wf = waveform
 		canvas.width = canvas.clientWidth
-    ctx = canvas.getContext("2d");
+		canvas.height = canvas.clientHeight
+    let ctx = canvas.getContext("2d");
 		ctx.clearRect(0, 0, canvas.width, canvas.height)
-		drawLines(wf.length, "black")
+		drawLines(ctx, wf.length, "black")
+		
+		const oc = overlay.querySelector('canvas')
+		oc.width = canvas.clientWidth
+		oc.height = canvas.clientHeight
+		ctx = oc.getContext("2d")
+		drawLines(ctx, wf.length, "green")
   }
   
-  function drawLines(amount: number, color: string) {
+  function drawLines(ctx: CanvasRenderingContext2D, amount: number, color: string) {
+  
 		const channel = wf.channel(0);
 		const fx = canvas.width / wf.length
 		const xMax = Math.min(amount, wf.length - 1)
@@ -185,23 +184,24 @@
 		ctx.beginPath();
 		ctx.fillStyle = color
 		ctx.strokeStyle = color
-	
-	
+		
+		
 		// Loop forwards, drawing the upper half of the waveform
 		for (let x = 0; x < Math.min(amount, wf.length); x++) {
 			const val = channel.max_sample(x);
-			ctx.lineTo(x * fx, scaleY(val, canvas.height) + 0.5);
+			ctx.lineTo(x * fx, scaleY(val, canvas.height) + fx);
 		}
 	
 		// Loop backwards, drawing the lower half of the waveform
 		for (let x = xMax; x >= 0; x--) {
 			const val = channel.min_sample(x);
-			ctx.lineTo(x * fx, scaleY(val, canvas.height) + 0.5);
+			ctx.lineTo(x * fx, scaleY(val, canvas.height) + fx);
 		}
 	
 		ctx.closePath();
 		ctx.stroke();
 		ctx.fill();
+		
 	}
 </script>
 
@@ -219,11 +219,12 @@
 		background-color: #333333;
   }
 
-  canvas {
+  .canvas-main {
     color: #ff3e00;
     text-transform: uppercase;
     font-size: 4em;
     font-weight: 100;
+		position: relative;
 		width: 100%;
   }
 	
@@ -275,8 +276,8 @@
 		position: absolute;
 		top: 0;
 		left: 0;
+		bottom: 0;
 		width: auto;
-		height: 100%;
 		display: flex;
 		padding: 32px 32px;
 		z-index: 100;
@@ -284,26 +285,59 @@
 		align-items: center;
 	}
 	
+	.overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+	}
+	
+	.overlay-container {
+		position: absolute;
+		transition: all 300ms;
+		overflow: hidden;
+		z-index: 1;
+		right: 0;
+		left:0;
+		top: 0;
+		bottom: 0;
+		width: 0;
+	}
+	
+	.player {
+		width: 100%;
+		height: auto;
+		position: relative;
+	}
+	
 </style>
 
 
-<main bind:this={main}>
-	<div class="controls">
-		<button on:click={play}>
-			{#if isPlaying}
-				<svg class="icon" viewBox="0 0 24 24">
-					<path d="M6 5L6 19L10 19L10 5L6 5 z M 14 5L14 19L18 19L18 5L14 5 z"/>
-				</svg>
-			{:else}
-				<svg class="icon"  viewBox="0 0 24 24"><path d="M8,5v14l11-7L8,5z"/></svg>
-			{/if}
-		</button>
+<main>
+	<div class="player" bind:this={player}>
+		<div class="controls">
+			<button on:click={play}>
+				{#if isPlaying}
+					<svg class="icon" viewBox="0 0 24 24">
+						<path d="M6 5L6 19L10 19L10 5L6 5 z M 14 5L14 19L18 19L18 5L14 5 z"/>
+					</svg>
+				{:else}
+					<svg class="icon"  viewBox="0 0 24 24"><path d="M8,5v14l11-7L8,5z"/></svg>
+				{/if}
+			</button>
+		</div>
+		<audio bind:this={audio} preload="auto" >
+			<source src="http://localhost:5000/test.wav" type="audio/wav" />
+		</audio>
+		<canvas bind:this={canvas} width="800" height="300" class="canvas-main">
+		</canvas>
+		<div class="overlay-container" bind:this={overlay}>
+			<canvas width="800" height="300" class="overlay">
+			</canvas>
+		</div>
 	</div>
-   <audio bind:this={audio} preload="auto" >
-    <source src="http://localhost:5000/test.wav" type="audio/wav" />
-	</audio>
-	<canvas bind:this={canvas} width="800" height="300">
-	</canvas>
+	
 <!--	<svg class="wave" bind:this={svg}>-->
 <!--		<defs>-->
 <!--			<clipPath id="cut-off-bottom">-->

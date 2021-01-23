@@ -23,6 +23,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="dart.analysis.tool.window.visible" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="yarn" />
     <property name="ts.external.directory.path" value="C:\Projects\Private\wavetest\node_modules\typescript\lib" />
     <property name="vue.rearranger.settings.migration" value="true" />
   </component>
@@ -42,7 +43,7 @@
       <workItem from="1608242016555" duration="6640000" />
       <workItem from="1608714491066" duration="253000" />
       <workItem from="1611421452291" duration="443000" />
-      <workItem from="1611423766870" duration="4638000" />
+      <workItem from="1611423766870" duration="8146000" />
     </task>
     <servers />
   </component>
@@ -58,6 +59,10 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="194" y="253" width="585" height="534" key="find.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1608246656698" />
+    <state x="143" y="242" key="run.anything.popup" timestamp="1611431075064">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="143" y="242" key="run.anything.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1611431075064" />
     <state x="150" y="229" width="672" height="678" key="search.everywhere.popup" timestamp="1608246652977">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
