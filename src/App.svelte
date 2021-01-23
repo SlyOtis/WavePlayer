@@ -62,12 +62,14 @@
 	function onStop(e) {
  		console.log('stop')
 		isPlaying = false
+		overlay.style.transitionDuration = '0'
 	}
 	
 	function onStart(e) {
 		console.log('start')
 		isPlaying = true
 		overlay.style.width = '0'
+		overlay.style.transitionDuration = `0.6s`
 	}
 	
 	function onPlaying(e) {
@@ -75,11 +77,11 @@
 	}
 	
 	function onTimeUpdate(e) {
-  	const deltaT = e.currentTarget.currentTime / duration
-		// overlay.attr('x', `${deltaT * 100}%`)
-		// drawLines(Math.ceil(wf.length * deltaT), "green")
+  	const timeOffset = isPlaying ? 0.6 : 0
+  	const deltaT = (e.currentTarget.currentTime + timeOffset) / duration
 		const width = deltaT * 100
 		overlay.style.width = `${isNaN(width) ? 0 : width}%`
+		overlay.style.transitionDuration = `${timeOffset}s`
 	}
 	
 	function onDurationChange(e) {
@@ -184,7 +186,6 @@
 		ctx.beginPath();
 		ctx.fillStyle = color
 		ctx.strokeStyle = color
-		
 		
 		// Loop forwards, drawing the upper half of the waveform
 		for (let x = 0; x < Math.min(amount, wf.length); x++) {
@@ -295,7 +296,8 @@
 	
 	.overlay-container {
 		position: absolute;
-		transition: all 300ms;
+		transition: all;
+		transition-duration: 0.6s;
 		overflow: hidden;
 		z-index: 1;
 		right: 0;
@@ -327,7 +329,7 @@
 				{/if}
 			</button>
 		</div>
-		<audio bind:this={audio} preload="auto" >
+		<audio bind:this={audio} preload="auto">
 			<source src="http://localhost:5000/test.wav" type="audio/wav" />
 		</audio>
 		<canvas bind:this={canvas} width="800" height="300" class="canvas-main">
