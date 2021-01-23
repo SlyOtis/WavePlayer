@@ -5,12 +5,13 @@
 	import apply = Reflect.apply;
 
 	export let name: string;
+	export let offsetY: number = 100;
 	
   let canvas: HTMLCanvasElement;
   let main: HTMLDivElement;
 	let audio: HTMLAudioElement;
 	let graph: any;
-	let overlay: SVGPathElement;
+	let overlay: any;
 	let svg: HTMLElement;
 
   const audioContext = new AudioContext();
@@ -19,7 +20,7 @@
 		console.log(audio);
 		console.log(graph);
 
-    fetch("http://localhost:5000/song.wav")
+    fetch("http://localhost:5000/test.wav")
       .then((response) => response.arrayBuffer())
       .then((buffer) => {
 
@@ -67,6 +68,7 @@
 	function onStart(e) {
 		console.log('start')
 		isPlaying = true
+		drawLines(wf.length, "black")
 	}
 	
 	function onPlaying(e) {
@@ -75,8 +77,8 @@
 	
 	function onTimeUpdate(e) {
   	const deltaT = e.currentTarget.currentTime / duration
-  	console.log(deltaT)
-		overlay.setAttribute('x', `${1 - deltaT}`)
+		// overlay.attr('x', `${deltaT * 100}%`)
+		drawLines(Math.ceil(wf.length * deltaT), "green")
 	}
 	
 	function onDurationChange(e) {
@@ -116,18 +118,17 @@
 		
 		const channel = waveform.channel(0);
 		
-		let graph = d3.select('main').select('.wave')
+		const graph = d3.select('main')
+			.select('.wave')
 		
 		const x = d3.scaleLinear();
 		const y = d3.scaleLinear();
-		
-		const offsetX = 100;
 		
 		const min = channel.min_array();
 		const max = channel.max_array();
 		
 		x.domain([0, waveform.length]).rangeRound([0, 1024]);
-		y.domain([d3.min(min) as any, d3.max(max)]).rangeRound([offsetX, -offsetX]);
+		y.domain([d3.min(min) as any, d3.max(max)]).rangeRound([offsetY, -offsetY]);
 		
 		const area = d3.area()
 			.x((d, i) => x(i))
@@ -136,54 +137,72 @@
 		
 		graph.select("path")
 			.datum(max)
-			.attr("transform", () => `translate(0, ${offsetX})`)
+			.attr("transform", () => `translate(0, ${offsetY})`)
 			.attr("d", area)
+			.attr('id', 'main')
+			.attr('style', `fill: green;`)
 		
-		const clone = svg.cloneNode(true) as HTMLElement
-		clone.classList.remove('wave-one')
-		clone.classList.add('wave-overlay')
-		overlay = clone.querySelector('path')
-		overlay.setAttribute('clip-path', 'url(#cut-off-bottom)')
+		overlay = graph.select('#cut-off-bottom')
+			.attr('transform', () => `translate(0, -${offsetY})`)
+			.select('rect')
 		
-		main.append(clone)
+		// const clone = svg.cloneNode(true) as HTMLElement
+		// clone.classList.remove('wave-one')
+		// clone.classList.add('wave-overlay')
+		// overlay = clone.querySelector('path')
+		// overlay.setAttribute('clip-path', 'url(#cut-off-bottom)')
 		
-		console.log(clone)
+		// main.append(clone)
+		//
+		// console.log(clone)
 		
 	}
 
+	function scaleY(amplitude, height) {
+		const range = 256;
+		const offset = 128;
+	
+		return height - ((amplitude + offset) * height) / range;
+	}
+	
+	let wf: any, ctx: CanvasRenderingContext2D
+
   function canvasStyle(waveform) {
-
-    const scaleY = (amplitude, height) => {
-      const range = 256;
-      const offset = 128;
-
-      return height - ((amplitude + offset) * height) / range;
-    };
-
-    const ctx = canvas.getContext("2d");
-    ctx.beginPath();
-
-    const channel = waveform.channel(0);
-
-    // Loop forwards, drawing the upper half of the waveform
-    for (let x = 0; x < waveform.length; x++) {
-      const val = channel.max_sample(x);
-      ctx.lineTo(x + 0.6, scaleY(val, canvas.height) + 0.5);
-    }
-
-    // Loop backwards, drawing the lower half of the waveform
-    for (let x = waveform.length - 1; x >= 0; x--) {
-      const val = channel.min_sample(x);
-
-      ctx.lineTo(x + 0.5, scaleY(val, canvas.height) + 0.5);
-    }
-
-    ctx.closePath();
-    ctx.stroke();
-    ctx.fill();
-
-    console.log(ctx);
+		wf = waveform
+		canvas.width = canvas.clientWidth
+    ctx = canvas.getContext("2d");
+		ctx.clearRect(0, 0, canvas.width, canvas.height)
+		drawLines(wf.length, "black")
   }
+  
+  function drawLines(amount: number, color: string) {
+		const channel = wf.channel(0);
+		const fx = canvas.width / wf.length
+		const xMax = Math.min(amount, wf.length - 1)
+  
+		ctx.clearRect(0, 0, fx * xMax, canvas.height)
+		
+		ctx.beginPath();
+		ctx.fillStyle = color
+		ctx.strokeStyle = color
+	
+	
+		// Loop forwards, drawing the upper half of the waveform
+		for (let x = 0; x < Math.min(amount, wf.length); x++) {
+			const val = channel.max_sample(x);
+			ctx.lineTo(x * fx, scaleY(val, canvas.height) + 0.5);
+		}
+	
+		// Loop backwards, drawing the lower half of the waveform
+		for (let x = xMax; x >= 0; x--) {
+			const val = channel.min_sample(x);
+			ctx.lineTo(x * fx, scaleY(val, canvas.height) + 0.5);
+		}
+	
+		ctx.closePath();
+		ctx.stroke();
+		ctx.fill();
+	}
 </script>
 
 <style>
@@ -205,6 +224,7 @@
     text-transform: uppercase;
     font-size: 4em;
     font-weight: 100;
+		width: 100%;
   }
 	
 	.wave {
@@ -279,10 +299,12 @@
 			{/if}
 		</button>
 	</div>
-   <audio bind:this={audio} preload="auto">
-    <source src="http://localhost:5000/song.wav" type="audio/wav" />
+   <audio bind:this={audio} preload="auto" >
+    <source src="http://localhost:5000/test.wav" type="audio/wav" />
 	</audio>
-<!--	<svg class="wave wave-one" bind:this={svg}>-->
+	<canvas bind:this={canvas} width="800" height="300">
+	</canvas>
+<!--	<svg class="wave" bind:this={svg}>-->
 <!--		<defs>-->
 <!--			<clipPath id="cut-off-bottom">-->
 <!--				<rect x="0" y="0" width="100%" height="100%" />-->
