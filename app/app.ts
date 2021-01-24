@@ -8,26 +8,35 @@ if (argv.length <= 0) {
   process.exit(-1)
 }
 
-const file = argv[0]
+argv.forEach(file => {
+  if (!fs.existsSync(file)) {
+    console.error(`File: "${file}" does not exist`)
+    process.exit(-1)
+  }
+})
 
-if (!fs.existsSync(file)) {
-  console.error(`File: "${file}" does not exist`)
-  process.exit(-1)
+function removeExisting(dest, format: Array<string>) {
+  format.forEach(ext => {
+    if (fs.existsSync(`${dest}.${ext}`)) {
+      fs.unlinkSync(`${dest}.${ext}`)
+    }
+  })
 }
 
-async function convertVideo() {
+async function convertVideo(file) {
   try {
     
     const name = path.parse(file)
     const out = path.join(process.cwd(), 'out')
     const dest = path.join(out, name.name)
     //Creating output directories
-    console.log('Removing duplicates')
-    fs.rmdirSync(out, {
-      recursive: true
-    })
-    console.log('Creating out directories')
-    fs.mkdirSync(out)
+    if (!fs.existsSync(out)) {
+      console.log('Creating output directory')
+      fs.mkdirSync(out)
+    }
+    // Remove duplicates
+    console.log('Remove existing')
+    removeExisting(dest, ['mp4', 'mp3', 'wav'])
     
     //Converting to ogg
     console.log(`Converting: ${name.name}${name.ext} -> ${dest}.ogg`)
@@ -60,5 +69,5 @@ async function convertVideo() {
   }
 }
 
-convertVideo()
+argv.forEach(convertVideo)
 

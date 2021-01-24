@@ -44,12 +44,20 @@ if (argv.length <= 0) {
     console.error('You need to specify a file input');
     process.exit(-1);
 }
-var file = argv[0];
-if (!fs.existsSync(file)) {
-    console.error("File: \"" + file + "\" does not exist");
-    process.exit(-1);
+argv.forEach(function (file) {
+    if (!fs.existsSync(file)) {
+        console.error("File: \"" + file + "\" does not exist");
+        process.exit(-1);
+    }
+});
+function removeExisting(dest, format) {
+    format.forEach(function (ext) {
+        if (fs.existsSync(dest + "." + ext)) {
+            fs.unlinkSync(dest + "." + ext);
+        }
+    });
 }
-function convertVideo() {
+function convertVideo(file) {
     return __awaiter(this, void 0, void 0, function () {
         var name_1, out, dest;
         return __generator(this, function (_a) {
@@ -58,12 +66,13 @@ function convertVideo() {
                 out = path.join(process.cwd(), 'out');
                 dest = path.join(out, name_1.name);
                 //Creating output directories
-                console.log('Removing duplicates');
-                fs.rmdirSync(out, {
-                    recursive: true
-                });
-                console.log('Creating out directories');
-                fs.mkdirSync(out);
+                if (!fs.existsSync(out)) {
+                    console.log('Creating output directory');
+                    fs.mkdirSync(out);
+                }
+                // Remove duplicates
+                console.log('Remove existing');
+                removeExisting(dest, ['mp4', 'mp3', 'wav']);
                 //Converting to ogg
                 console.log("Converting: " + name_1.name + name_1.ext + " -> " + dest + ".ogg");
                 child_process_1.execSync("ffmpeg -i " + file + " " + dest + ".ogg", {
@@ -93,4 +102,4 @@ function convertVideo() {
         });
     });
 }
-convertVideo();
+argv.forEach(convertVideo);
