@@ -23,12 +23,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9292c75-7825-44c2-8491-cd1b930807a3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/app.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.svelte" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.svelte" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/app.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -72,7 +67,7 @@
       <workItem from="1608714491066" duration="253000" />
       <workItem from="1611421452291" duration="443000" />
       <workItem from="1611423766870" duration="9696000" />
-      <workItem from="1611492147695" duration="5732000" />
+      <workItem from="1611492147695" duration="5811000" />
     </task>
     <servers />
   </component>
@@ -96,10 +91,10 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="247" y="321" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1611503386658">
+    <state x="247" y="321" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1611504342700">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="247" y="321" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1611503386658" />
+    <state x="247" y="321" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1611504342700" />
     <state x="267" y="274" key="FileChooserDialogImpl" timestamp="1608714750590">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>

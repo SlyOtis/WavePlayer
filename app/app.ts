@@ -46,6 +46,12 @@ async function convertVideo() {
     execSync(`ffmpeg -i ${file} ${dest}.mp4`, {
       stdio: "pipe",
     })
+  
+    //Converting to wav
+    console.log(`Converting: ${name.name}${name.ext} -> ${dest}.wav`)
+    execSync(`ffmpeg -i ${file} ${dest}.wav`, {
+      stdio: "pipe",
+    })
     
     
   } catch (e) {

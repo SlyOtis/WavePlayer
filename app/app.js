@@ -79,6 +79,11 @@ function convertVideo() {
                 child_process_1.execSync("ffmpeg -i " + file + " " + dest + ".mp4", {
                     stdio: "pipe"
                 });
+                //Converting to wav
+                console.log("Converting: " + name_1.name + name_1.ext + " -> " + dest + ".wav");
+                child_process_1.execSync("ffmpeg -i " + file + " " + dest + ".wav", {
+                    stdio: "pipe"
+                });
             }
             catch (e) {
                 console.error(e);
