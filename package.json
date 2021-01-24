@@ -5,14 +5,15 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public",
-    "validate": "svelte-check"
+    "validate": "svelte-check",
+    "node:dev": "tsc app/app.ts && node app/app.js"
   },
   "devDependencies": {
-		"@types/d3": "^6.2.0",
     "@rollup/plugin-commonjs": "^16.0.0",
     "@rollup/plugin-node-resolve": "^10.0.0",
     "@rollup/plugin-typescript": "^6.0.0",
     "@tsconfig/svelte": "^1.0.10",
+    "@types/d3": "^6.2.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.0.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -25,6 +26,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "@types/ffmpeg": "^1.0.3",
     "d3": "^6.3.1",
     "sirv-cli": "^1.0.0",
     "waveform-data": "^3.3.4"

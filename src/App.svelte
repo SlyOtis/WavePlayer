@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-	import WaveformData from "waveform-data";
+  import { onMount } from "svelte"
+	import WaveformData from "waveform-data"
 	import * as d3 from 'd3'
 
 	export let name: string;
@@ -11,13 +11,12 @@
 	let audio: HTMLAudioElement;
 	let graph: any;
 	let overlay: any;
+	let waves: any;
 	let svg: HTMLElement;
 
   const audioContext = new AudioContext();
 
   onMount(() => {
-		console.log(audio);
-		console.log(graph);
 
     fetch("http://localhost:5000/test.wav")
       .then((response) => response.arrayBuffer())
@@ -39,7 +38,10 @@
 					});
         });
 			})
-      .then(canvasStyle);
+      .then(canvasStyle)
+    	.then(() => {
+    		waves.style.transform = `translateX(0) scaleY(1)`
+			})
   });
   
   let isPlaying = false, isReady = false, duration = 0, initial = true;
@@ -218,6 +220,7 @@
 		justify-content: center;
 		align-items: center;
 		background-color: #333333;
+		overflow: hidden;
   }
 
   .canvas-main {
@@ -313,6 +316,12 @@
 		position: relative;
 	}
 	
+	.waves {
+		transition: all 1s;
+		transform: translateX(-100%) scaleY(0);
+		transform-origin: left center;
+	}
+	
 </style>
 
 
@@ -329,14 +338,16 @@
 				{/if}
 			</button>
 		</div>
-		<audio bind:this={audio} preload="auto">
-			<source src="http://localhost:5000/test.wav" type="audio/wav" />
-		</audio>
-		<canvas bind:this={canvas} width="800" height="300" class="canvas-main">
-		</canvas>
-		<div class="overlay-container" bind:this={overlay}>
-			<canvas width="800" height="300" class="overlay">
+		<div class="waves" bind:this={waves}>
+			<audio bind:this={audio} preload="auto">
+				<source src="http://localhost:5000/test.wav" type="audio/wav" />
+			</audio>
+			<canvas bind:this={canvas} width="800" height="300" class="canvas-main">
 			</canvas>
+			<div class="overlay-container" bind:this={overlay}>
+				<canvas width="800" height="300" class="overlay">
+				</canvas>
+			</div>
 		</div>
 	</div>
 	
