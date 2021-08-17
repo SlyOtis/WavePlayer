@@ -1,7 +1,9 @@
 import App from './App.svelte';
 
+console.log("Trøkkstad for life")
+
 const app = new App({
-	target: document.getElementById("root"),
+	target: document.querySelector(".player")!!,
 	props: {
 		name: 'world'
 	}
